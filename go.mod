@@ -50,7 +50,7 @@ require (
 
 replace (
 	github.com/envoyproxy/go-control-plane => github.com/envoyproxy/go-control-plane v0.8.0
-	launchpad.net/gocheck => github.com/go-check/check v0.0.0-20140225173054-eb6ee6f84d0a
+	github.com/dubbogo/go-zookeeper => github.com/6z7/go-zookeeper v1.0.3-0.20210119115332-f8de60749688
 )
 
 go 1.13

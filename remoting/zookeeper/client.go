@@ -18,6 +18,7 @@
 package zookeeper
 
 import (
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -223,7 +224,7 @@ func NewMockZookeeperClient(name string, timeout time.Duration, opts ...Option) 
 	if options.ts != nil {
 		ts = options.ts
 	} else {
-		ts, err = zk.StartTestCluster(1, nil, nil)
+		ts, err = zk.StartTestCluster(1, os.Stdout, os.Stderr)
 		if err != nil {
 			return nil, nil, nil, perrors.WithMessagef(err, "zk.Connect")
 		}
