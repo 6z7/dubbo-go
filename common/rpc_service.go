@@ -121,9 +121,9 @@ func (m *MethodType) SuiteContext(ctx context.Context) reflect.Value {
 // Service is description of service
 type Service struct {
 	name     string
-	rcvr     reflect.Value
-	rcvrType reflect.Type
-	methods  map[string]*MethodType
+	rcvr     reflect.Value          // provider reflect value
+	rcvrType reflect.Type           // provider reflect type
+	methods  map[string]*MethodType // method name ->method type
 }
 
 // Method gets @s.methods.

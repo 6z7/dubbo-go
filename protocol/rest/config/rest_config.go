@@ -23,7 +23,7 @@ import (
 
 var (
 	restConsumerServiceConfigMap map[string]*RestServiceConfig
-	restProviderServiceConfigMap map[string]*RestServiceConfig
+	restProviderServiceConfigMap map[string]*RestServiceConfig // provider server name->RestServiceConfig
 )
 
 // nolint

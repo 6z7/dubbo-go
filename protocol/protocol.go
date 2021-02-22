@@ -52,7 +52,7 @@ type Exporter interface {
 
 // BaseProtocol is default protocol implement.
 type BaseProtocol struct {
-	exporterMap *sync.Map
+	exporterMap *sync.Map // service key->exporter
 	invokers    []Invoker
 }
 
