@@ -178,30 +178,38 @@ func loadProviderConfig() {
 
 	// init other provider config
 	proConfigType := providerConfig.ConfigType
+	// 解析配置文件 rest协议有单独的配置文件
 	for key, value := range extension.GetDefaultConfigReader() {
 		if proConfigType != nil {
 			if v, ok := proConfigType[key]; ok {
 				value = v
 			}
 		}
+		// 读取配置并解析到对应的配置文件
 		if err := extension.GetConfigReaders(value).ReadProviderConfig(providerConfig.fileStream); err != nil {
 			logger.Errorf("ReadProviderConfig error: %#v for %s", perrors.WithStack(err), value)
 		}
 	}
 
 	checkApplicationName(providerConfig.ApplicationConfig)
+	// TODO 配置中心
 	if err := configCenterRefreshProvider(); err != nil {
 		logger.Errorf("[provider config center refresh] %#v", err)
 	}
+	// 单个注册中心根据需要合并到注册中心集合
 	checkRegistries(providerConfig.Registries, providerConfig.Registry)
 
+	// 遍历所有的service
 	for key, svs := range providerConfig.Services {
+		// 根据service查询service
 		rpcService := GetProviderService(key)
 		if rpcService == nil {
 			logger.Warnf("%s does not exist!", key)
 			continue
 		}
+		// service name
 		svs.id = key
+		// 保存service实现
 		svs.Implement(rpcService)
 		svs.Protocols = providerConfig.Protocols
 		if err := svs.Export(); err != nil {

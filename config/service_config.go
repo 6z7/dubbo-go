@@ -45,12 +45,17 @@ import (
 )
 
 // ServiceConfig is the configuration of the service provider
+// service配置文件
 type ServiceConfig struct {
-	context                     context.Context
-	id                          string
-	Filter                      string            `yaml:"filter" json:"filter,omitempty" property:"filter"`
-	Protocol                    string            `default:"dubbo"  required:"true"  yaml:"protocol"  json:"protocol,omitempty" property:"protocol"` // multi protocol support, split by ','
-	InterfaceName               string            `required:"true"  yaml:"interface"  json:"interface,omitempty" property:"interface"`
+	context context.Context
+	// 唯一标志 service的名称
+	id     string
+	Filter string `yaml:"filter" json:"filter,omitempty" property:"filter"`
+	// service使用的协议，多个使用","分割
+	Protocol string `default:"dubbo"  required:"true"  yaml:"protocol"  json:"protocol,omitempty" property:"protocol"` // multi protocol support, split by ','
+	// 接口名称
+	InterfaceName string `required:"true"  yaml:"interface"  json:"interface,omitempty" property:"interface"`
+	// service上使用的注册中心名称 多个使用","分割
 	Registry                    string            `yaml:"registry"  json:"registry,omitempty"  property:"registry"`
 	Cluster                     string            `default:"failover" yaml:"cluster"  json:"cluster,omitempty" property:"cluster"`
 	Loadbalance                 string            `default:"random" yaml:"loadbalance"  json:"loadbalance,omitempty"  property:"loadbalance"`
@@ -73,10 +78,11 @@ type ServiceConfig struct {
 	Auth                        string            `yaml:"auth" json:"auth,omitempty" property:"auth"`
 	ParamSign                   string            `yaml:"param.sign" json:"param.sign,omitempty" property:"param.sign"`
 	Tag                         string            `yaml:"tag" json:"tag,omitempty" property:"tag"`
-
-	Protocols     map[string]*ProtocolConfig
-	unexported    *atomic.Bool
-	exported      *atomic.Bool
+	// 支持的协议
+	Protocols  map[string]*ProtocolConfig
+	unexported *atomic.Bool
+	exported   *atomic.Bool
+	// service实现
 	rpcService    common.RPCService
 	cacheMutex    sync.Mutex
 	cacheProtocol protocol.Protocol
@@ -157,8 +163,11 @@ func (c *ServiceConfig) Export() error {
 		return nil
 	}
 
+	// 注册中心配置转为url
 	regUrls := loadRegistries(c.Registry, providerConfig.Registries, common.PROVIDER)
+	// Service配置转为url.Values
 	urlMap := c.getUrlMap()
+	// service支持的协议
 	protocolConfigs := loadProtocol(c.Protocol, c.Protocols)
 	if len(protocolConfigs) == 0 {
 		logger.Warnf("The service %v's '%v' protocols don't has right protocolConfigs", c.InterfaceName, c.Protocol)
@@ -168,6 +177,7 @@ func (c *ServiceConfig) Export() error {
 	ports := getRandomPort(protocolConfigs)
 	nextPort := ports.Front()
 	proxyFactory := extension.GetProxyFactory(providerConfig.ProxyFactory)
+	// 将服务通过支持的协议暴露出去
 	for _, proto := range protocolConfigs {
 		// registry the service reflect
 		methods, err := common.ServiceMap.Register(c.InterfaceName, proto.Name, c.rpcService)
@@ -254,6 +264,7 @@ func (c *ServiceConfig) Implement(s common.RPCService) {
 	c.rpcService = s
 }
 
+// Service配置转为url.Values
 func (c *ServiceConfig) getUrlMap() url.Values {
 	urlMap := url.Values{}
 	// first set user params

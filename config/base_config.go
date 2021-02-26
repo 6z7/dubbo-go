@@ -53,7 +53,8 @@ type BaseConfig struct {
 	fatherConfig        interface{}
 	EventDispatcherType string        `default:"direct" yaml:"event_dispatcher_type" json:"event_dispatcher_type,omitempty"`
 	MetricConfig        *MetricConfig `yaml:"metrics" json:"metrics,omitempty"`
-	fileStream          *bytes.Buffer
+	// 配置文件
+	fileStream *bytes.Buffer
 }
 
 // nolint

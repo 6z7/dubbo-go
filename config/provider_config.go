@@ -36,19 +36,24 @@ import (
 /////////////////////////
 
 // ProviderConfig is the default configuration of service provider
+// provider配置
 type ProviderConfig struct {
 	BaseConfig `yaml:",inline"`
 	configCenter
-	Filter         string                     `yaml:"filter" json:"filter,omitempty" property:"filter"`
-	ProxyFactory   string                     `yaml:"proxy_factory" default:"default" json:"proxy_factory,omitempty" property:"proxy_factory"`
-	Services       map[string]*ServiceConfig  `yaml:"services" json:"services,omitempty" property:"services"`
+	Filter string `yaml:"filter" json:"filter,omitempty" property:"filter"`
+	// 代理 默认default
+	ProxyFactory string `yaml:"proxy_factory" default:"default" json:"proxy_factory,omitempty" property:"proxy_factory"`
+	// provider提供的服务  server name->ServiceConfig
+	Services map[string]*ServiceConfig `yaml:"services" json:"services,omitempty" property:"services"`
+	// 支持的协议  协议名称->协议配置
 	Protocols      map[string]*ProtocolConfig `yaml:"protocols" json:"protocols,omitempty" property:"protocols"`
 	ProtocolConf   interface{}                `yaml:"protocol_conf" json:"protocol_conf,omitempty" property:"protocol_conf"`
 	FilterConf     interface{}                `yaml:"filter_conf" json:"filter_conf,omitempty" property:"filter_conf"`
 	ShutdownConfig *ShutdownConfig            `yaml:"shutdown_conf" json:"shutdown_conf,omitempty" property:"shutdown_conf"`
 	ConfigType     map[string]string          `yaml:"config_type" json:"config_type,omitempty" property:"config_type"`
-
-	Registry   *RegistryConfig            `yaml:"registry" json:"registry,omitempty" property:"registry"`
+	// 单个注册中心
+	Registry *RegistryConfig `yaml:"registry" json:"registry,omitempty" property:"registry"`
+	// 多个注册中心 注册中心名字->RegistryConfig
 	Registries map[string]*RegistryConfig `default:"{}" yaml:"registries" json:"registries" property:"registries"`
 }
 

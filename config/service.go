@@ -32,6 +32,7 @@ func SetConsumerService(service common.RPCService) {
 }
 
 // SetProviderService is called by init() of implement of RPCService
+// 保存创建的RPC provider service
 func SetProviderService(service common.RPCService) {
 	proServices[service.Reference()] = service
 }

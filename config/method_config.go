@@ -27,8 +27,8 @@ import (
 
 // MethodConfig defines method config
 type MethodConfig struct {
-	InterfaceId                 string
-	InterfaceName               string
+	InterfaceId                 string // 方法属于第几个接口
+	InterfaceName               string // 方法所属的接口名字
 	Name                        string `yaml:"name"  json:"name,omitempty" property:"name"`
 	Retries                     string `yaml:"retries"  json:"retries,omitempty" property:"retries"`
 	LoadBalance                 string `yaml:"loadbalance"  json:"loadbalance,omitempty" property:"loadbalance"`

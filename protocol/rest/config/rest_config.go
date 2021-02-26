@@ -23,7 +23,8 @@ import (
 
 var (
 	restConsumerServiceConfigMap map[string]*RestServiceConfig
-	restProviderServiceConfigMap map[string]*RestServiceConfig // provider server name->RestServiceConfig
+	// provider name->RestServiceConfig
+	restProviderServiceConfigMap map[string]*RestServiceConfig
 )
 
 // nolint
@@ -48,9 +49,11 @@ func (c *RestConsumerConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 
 // nolint
 type RestProviderConfig struct {
-	Server                string                        `default:"go-restful" yaml:"rest_server" json:"rest_server,omitempty" property:"rest_server"`
-	Produces              string                        `default:"*/*" yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
-	Consumes              string                        `default:"*/*" yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
+	// rest实现的服务器，默认 go-restful
+	Server   string `default:"go-restful" yaml:"rest_server" json:"rest_server,omitempty" property:"rest_server"`
+	Produces string `default:"*/*" yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
+	Consumes string `default:"*/*" yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
+	// provider提供的service serviceName->RestServiceConfig
 	RestServiceConfigsMap map[string]*RestServiceConfig `yaml:"services" json:"services,omitempty" property:"services"`
 }
 
@@ -67,16 +70,21 @@ func (c *RestProviderConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 }
 
 // nolint
+// 服务(接口)配置
 type RestServiceConfig struct {
-	InterfaceName        string              `required:"true"  yaml:"interface"  json:"interface,omitempty" property:"interface"`
-	Url                  string              `yaml:"url"  json:"url,omitempty" property:"url"`
-	Path                 string              `yaml:"rest_path"  json:"rest_path,omitempty" property:"rest_path"`
-	Produces             string              `yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
-	Consumes             string              `yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
-	MethodType           string              `yaml:"rest_method"  json:"rest_method,omitempty" property:"rest_method"`
-	Client               string              `yaml:"rest_client" json:"rest_client,omitempty" property:"rest_client"`
-	Server               string              `yaml:"rest_server" json:"rest_server,omitempty" property:"rest_server"`
-	RestMethodConfigs    []*RestMethodConfig `yaml:"methods" json:"methods,omitempty" property:"methods"`
+	// 接口名字
+	InterfaceName string `required:"true"  yaml:"interface"  json:"interface,omitempty" property:"interface"`
+	Url           string `yaml:"url"  json:"url,omitempty" property:"url"`
+	Path          string `yaml:"rest_path"  json:"rest_path,omitempty" property:"rest_path"`
+	Produces      string `yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
+	Consumes      string `yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
+	MethodType    string `yaml:"rest_method"  json:"rest_method,omitempty" property:"rest_method"`
+	Client        string `yaml:"rest_client" json:"rest_client,omitempty" property:"rest_client"`
+	// 实现service(接口)的服务器
+	Server string `yaml:"rest_server" json:"rest_server,omitempty" property:"rest_server"`
+	// service中支持的方法
+	RestMethodConfigs []*RestMethodConfig `yaml:"methods" json:"methods,omitempty" property:"methods"`
+	// 方法名称->方法配置
 	RestMethodConfigsMap map[string]*RestMethodConfig
 }
 
@@ -94,12 +102,16 @@ func (c *RestServiceConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 
 // nolint
 type RestMethodConfig struct {
-	InterfaceName  string
-	MethodName     string `required:"true" yaml:"name"  json:"name,omitempty" property:"name"`
-	Url            string `yaml:"url"  json:"url,omitempty" property:"url"`
-	Path           string `yaml:"rest_path"  json:"rest_path,omitempty" property:"rest_path"`
-	Produces       string `yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
-	Consumes       string `yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
+	// 方法所属的接口名称
+	InterfaceName string
+	// 方法名称
+	MethodName string `required:"true" yaml:"name"  json:"name,omitempty" property:"name"`
+	Url        string `yaml:"url"  json:"url,omitempty" property:"url"`
+	// 路径
+	Path     string `yaml:"rest_path"  json:"rest_path,omitempty" property:"rest_path"`
+	Produces string `yaml:"rest_produces"  json:"rest_produces,omitempty" property:"rest_produces"`
+	Consumes string `yaml:"rest_consumes"  json:"rest_consumes,omitempty" property:"rest_consumes"`
+	// http请求方式 GET POST ...
 	MethodType     string `yaml:"rest_method"  json:"rest_method,omitempty" property:"rest_method"`
 	PathParams     string `yaml:"rest_path_params"  json:"rest_path_params,omitempty" property:"rest_path_params"`
 	PathParamsMap  map[int]string

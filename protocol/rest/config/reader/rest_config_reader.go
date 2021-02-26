@@ -76,7 +76,9 @@ func (cr *RestConfigReader) ReadProviderConfig(reader *bytes.Buffer) error {
 		return perrors.Errorf("[Rest Config] unmarshal Provider error %#v", perrors.WithStack(err))
 	}
 	restProviderServiceConfigMap := make(map[string]*config.RestServiceConfig, len(restProviderConfig.RestServiceConfigsMap))
+	// 遍历所有的service
 	for key, rc := range restProviderConfig.RestServiceConfigsMap {
+		// 实现service的服务器
 		rc.Server = getNotEmptyStr(rc.Server, restProviderConfig.Server, constant.DEFAULT_REST_SERVER)
 		rc.RestMethodConfigsMap = initMethodConfigMap(rc, restProviderConfig.Consumes, restProviderConfig.Produces)
 		restProviderServiceConfigMap[strings.TrimPrefix(key, "/")] = rc
@@ -88,6 +90,7 @@ func (cr *RestConfigReader) ReadProviderConfig(reader *bytes.Buffer) error {
 // initProviderRestConfig ...
 func initMethodConfigMap(rc *config.RestServiceConfig, consumes string, produces string) map[string]*config.RestMethodConfig {
 	mcm := make(map[string]*config.RestMethodConfig, len(rc.RestMethodConfigs))
+	// 遍历方法
 	for _, mc := range rc.RestMethodConfigs {
 		mc.InterfaceName = rc.InterfaceName
 		mc.Path = rc.Path + mc.Path

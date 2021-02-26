@@ -203,6 +203,7 @@ func (sm *serviceMap) Register(interfaceName, protocol string, rcvr RPCService) 
 		return "", perrors.New(s)
 	}
 
+	// 服务标志
 	sname = rcvr.Reference()
 	if server := sm.GetService(protocol, sname); server != nil {
 		return "", perrors.New("service already defined: " + sname)
@@ -212,6 +213,7 @@ func (sm *serviceMap) Register(interfaceName, protocol string, rcvr RPCService) 
 
 	// Install the methods
 	methods := ""
+	// 解析类下的所有方法
 	methods, s.methods = suitableMethods(s.rcvrType)
 
 	if len(s.methods) == 0 {
@@ -301,6 +303,7 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 }
 
 // suitableMethods returns suitable Rpc methods of typ
+// 解析指定类型中的方法
 func suitableMethods(typ reflect.Type) (string, map[string]*MethodType) {
 	methods := make(map[string]*MethodType)
 	var mts []string
@@ -310,9 +313,10 @@ func suitableMethods(typ reflect.Type) (string, map[string]*MethodType) {
 	if ok && method.Type.NumIn() == 1 && method.Type.NumOut() == 1 && method.Type.Out(0).String() == "map[string]string" {
 		methodMapper = method.Func.Call([]reflect.Value{reflect.New(typ.Elem())})[0].Interface().(map[string]string)
 	}
-
+	// 遍历所有method
 	for m := 0; m < typ.NumMethod(); m++ {
 		method = typ.Method(m)
+		// 解析method
 		if mt := suiteMethod(method); mt != nil {
 			methodName, ok := methodMapper[method.Name]
 			if !ok {
@@ -326,6 +330,7 @@ func suitableMethods(typ reflect.Type) (string, map[string]*MethodType) {
 }
 
 // suiteMethod returns a suitable Rpc methodType
+// 解析method
 func suiteMethod(method reflect.Method) *MethodType {
 	mtype := method.Type
 	mname := method.Name
@@ -376,6 +381,7 @@ func suiteMethod(method reflect.Method) *MethodType {
 	index := 1
 
 	// ctxType
+	// 0:报名.类名  1：第一个参数
 	if inNum > 1 && mtype.In(1).String() == "context.Context" {
 		ctxType = mtype.In(1)
 		index = 2

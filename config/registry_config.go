@@ -35,17 +35,19 @@ import (
 
 // RegistryConfig is the configuration of the registry center
 type RegistryConfig struct {
+	// 注册中心使用的协议 zk or other ,如果address中指定了协议会覆盖protocol
 	Protocol string `required:"true" yaml:"protocol"  json:"protocol,omitempty" property:"protocol"`
 	// I changed "type" to "protocol" ,the same as "protocol" field in java class RegistryConfig
 	TimeoutStr string `yaml:"timeout" default:"5s" json:"timeout,omitempty" property:"timeout"` // unit: second
 	Group      string `yaml:"group" json:"group,omitempty" property:"group"`
 	TTL        string `yaml:"ttl" default:"10m" json:"ttl,omitempty" property:"ttl"` // unit: minute
-	// for registry
+	// for registry 注册中心地址 多个使用","分割
 	Address    string `yaml:"address" json:"address,omitempty" property:"address"`
 	Username   string `yaml:"username" json:"username,omitempty" property:"username"`
 	Password   string `yaml:"password" json:"password,omitempty"  property:"password"`
 	Simplified bool   `yaml:"simplified" json:"simplified,omitempty"  property:"simplified"`
 	// Always use this registry first if set to true, useful when subscribe to multiple registries
+	// 如果多个注册中心是否首选
 	Preferred bool `yaml:"preferred" json:"preferred,omitempty" property:"preferred"`
 	// The region where the registry belongs, usually used to isolate traffics
 	Zone string `yaml:"zone" json:"zone,omitempty" property:"zone"`
@@ -74,6 +76,7 @@ func (*RegistryConfig) Prefix() string {
 	return constant.RegistryConfigPrefix + "|" + constant.SingleRegistryConfigPrefix
 }
 
+// 注册中心配置转为url
 func loadRegistries(targetRegistries string, registries map[string]*RegistryConfig, roleType common.RoleType) []*common.URL {
 	var urls []*common.URL
 	trSlice := strings.Split(targetRegistries, ",")
@@ -102,6 +105,7 @@ func loadRegistries(targetRegistries string, registries map[string]*RegistryConf
 			addresses := strings.Split(registryConf.Address, ",")
 			address := addresses[0]
 			address = translateRegistryConf(address, registryConf)
+			// 将注册中心的配置转为url
 			url, err := common.NewURL(constant.REGISTRY_PROTOCOL+"://"+address,
 				common.WithParams(registryConf.getUrlMap(roleType)),
 				common.WithParamsValue("simplified", strconv.FormatBool(registryConf.Simplified)),
@@ -122,10 +126,14 @@ func loadRegistries(targetRegistries string, registries map[string]*RegistryConf
 	return urls
 }
 
+// 将注册中心的配置保存到url.values中
 func (c *RegistryConfig) getUrlMap(roleType common.RoleType) url.Values {
 	urlMap := url.Values{}
+	// 组
 	urlMap.Set(constant.GROUP_KEY, c.Group)
+	// provider or consumer 使用配置中心
 	urlMap.Set(constant.ROLE_KEY, strconv.Itoa(int(roleType)))
+	// 注册中心使用的协议
 	urlMap.Set(constant.REGISTRY_KEY, c.Protocol)
 	urlMap.Set(constant.REGISTRY_TIMEOUT_KEY, c.TimeoutStr)
 	// multi registry invoker weight label for load balance
@@ -142,6 +150,7 @@ func (c *RegistryConfig) getUrlMap(roleType common.RoleType) url.Values {
 }
 
 func translateRegistryConf(address string, registryConf *RegistryConfig) string {
+	// 注册中心的地址上指定了协议 则强制覆盖配置的注册中心protocol
 	if strings.Contains(address, "://") {
 		translatedUrl, err := url.Parse(address)
 		if err != nil {
